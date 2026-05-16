@@ -1,0 +1,179 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-sand: #ffffff;
+    --color-ink: #0b1f3b;
+    --color-brand: #d86b2c;
+    --color-brand-dark: #b7581d;
+    --color-sea: #0f766e;
+    --color-copper: #b54b2a;
+    --color-stone: #e6edf6;
+    --color-navy: #0b1f3b;
+    --color-mist: #eef4fb;
+    --color-cloud: #ffffff;
+}
+
+@layer base {
+    body {
+        background-color: var(--color-sand);
+        color: var(--color-ink);
+        font-family: var(--font-sans);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-brand);
+        outline-offset: 3px;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-family: var(--font-display);
+        letter-spacing: -0.02em;
+        font-kerning: none;
+    }
+}
+
+@layer utilities {
+    .font-display {
+        font-family: var(--font-display);
+    }
+
+    .bg-sand {
+        background-color: var(--color-sand);
+    }
+
+    .bg-mist {
+        background-color: var(--color-mist);
+    }
+
+    .bg-navy {
+        background-color: var(--color-navy);
+    }
+
+    .bg-stone {
+        background-color: var(--color-stone);
+    }
+
+    .text-ink {
+        color: var(--color-ink);
+    }
+
+    .text-navy {
+        color: var(--color-navy);
+    }
+
+    .text-brand {
+        color: var(--color-brand);
+    }
+
+    .bg-brand {
+        background-color: var(--color-brand);
+    }
+
+    .text-brand-dark {
+        color: var(--color-brand-dark);
+    }
+
+    .bg-brand-dark {
+        background-color: var(--color-brand-dark);
+    }
+
+    .shadow-soft {
+        box-shadow: 0 24px 60px rgba(26, 27, 31, 0.12);
+    }
+
+    .bg-dot-grid {
+        background-image: radial-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 1px);
+        background-size: 14px 14px;
+    }
+
+    .hover-lift {
+        transition: transform 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 40px rgba(13, 23, 54, 0.25);
+    }
+
+    .img-zoom {
+        transition: transform 0.5s ease;
+    }
+
+    .group:hover .img-zoom {
+        transform: scale(1.06);
+    }
+
+    .float-in {
+        animation: floatIn 0.7s ease forwards;
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    /* Tùy chỉnh thanh cuộn ngang (Scrollbar) chuẩn form UI/UX */
+.custom-scrollbar::-webkit-scrollbar {
+    height: 8px; /* Độ dày của thanh cuộn */
+}
+
+/* Rãnh chạy của thanh cuộn */
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f3f4f6; /* Màu xám nhạt */
+    border-radius: 10px;
+}
+
+/* Cục kéo (Thumb) */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #003366; /* Màu xanh thương hiệu */
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* Khi hover chuột vào cục kéo */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #E27121; /* Đổi màu cam cho nổi bật */
+}
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .carousel-item {
+        flex: 0 0 auto;
+        width: 240px;
+    }
+
+    .carousel-btn {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .carousel-btn:hover {
+        transform: translateY(-50%) scale(1.05);
+    }
+
+    @media (width >= 640px) {
+        .carousel-item {
+            width: 260px;
+        }
+    }
+
+    @media (width >= 1024px) {
+        .carousel-item {
+            width: 280px;
+        }
+    }
+}
+
+@keyframes floatIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

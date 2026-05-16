@@ -1,0 +1,74 @@
+@extends('layouts.admin')
+
+@section('content')
+<div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 800px; margin: 0 auto;">
+    <div style="border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between;">
+        <h2 style="margin: 0; color: #1e293b;">
+            <i class="fa-solid fa-user-plus" style="margin-right: 10px; color: #4f46e5;"></i> Thêm tài khoản mới
+        </h2>
+        <a href="{{ route('admin.users.index') }}" style="color: #64748b; text-decoration: none; font-size: 14px;">
+            <i class="fa-solid fa-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    <form action="{{ route('admin.users.store') }}" method="POST">
+        @csrf
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #475569;">Tên người dùng</label>
+            <input type="text" name="name" value="{{ old('name') }}" required placeholder="Vd: Nguyễn Văn A..."
+                style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; outline: none;">
+            @error('name')
+            <div style="color: #e74c3c; font-size: 13px; margin-top: 5px;">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #475569;">Email đăng nhập</label>
+            <input type="email" name="email" value="{{ old('email') }}" required placeholder="Vd: admin@gialockhang.com..."
+                style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; outline: none;">
+            @error('email')
+            <div style="color: #e74c3c; font-size: 13px; margin-top: 5px;">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #475569;">Mật khẩu</label>
+            <input type="password" name="password" required placeholder="Tối thiểu 6 ký tự..."
+                style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; outline: none;">
+            @error('password')
+            <div style="color: #e74c3c; font-size: 13px; margin-top: 5px;">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 8px; color: #475569;">Nhập lại mật khẩu</label>
+            <input type="password" name="password_confirmation" required placeholder="Nhập lại mật khẩu ở trên..."
+                style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; outline: none;">
+        </div>
+
+        <div style="margin-bottom: 25px;">
+            <label style="display: block; font-weight: 600; margin-bottom: 12px; color: #475569;">Phân quyền</label>
+            <div style="display: flex; gap: 20px;">
+                @foreach($roles as $role)
+                <label style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" name="roles[]" value="{{ $role->name }}" style="width: 18px; height: 18px;">
+                    <span style="font-weight: 600; color: #2c3e50;">{{ strtoupper($role->name) }}</span>
+                </label>
+                @endforeach
+            </div>
+            @error('roles')
+            <div style="color: #e74c3c; font-size: 13px; margin-top: 5px;">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" style="background: #4f46e5; color: white; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+                <i class="fa-solid fa-check"></i> TẠO TÀI KHOẢN
+            </button>
+            <a href="{{ route('admin.users.index') }}" style="background: #f1f5f9; color: #64748b; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                Hủy bỏ
+            </a>
+        </div>
+    </form>
+</div>
+@endsection
