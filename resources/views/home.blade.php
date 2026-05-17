@@ -75,7 +75,7 @@ $services = [
                 Infrastructure Development & Engineering
             </h4>
             
-            <h1 class="text-5xl md:text-[100px] font-black text-white uppercase leading-none tracking-tighter drop-shadow-[0_5px_15px_rgba(0,0,0,0.3)]">
+            <h1 class="text-5xl md:text-[100px] font-black text-white uppercase leading-tight tracking-tight drop-shadow-[0_5px_15px_rgba(0,0,0,0.3)]">
                 UY TÍN <br>
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#E27121] to-[#ffb88c] drop-shadow-none">CHẤT LƯỢNG</span> <br>
                 <span class="flex items-center gap-6">

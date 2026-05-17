@@ -14,20 +14,9 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggle = document.querySelector('[data-menu-toggle]');
-        const menu = document.querySelector('[data-menu-target]');
 
-        if (toggle && menu) {
-            toggle.addEventListener('click', () => {
-                menu.classList.toggle('hidden');
-            });
-        }
-    });
-</script>
 
-<body class="bg-gray-50 text-gray-800 font-['Be_Vietnam_Pro']">
+<body class="bg-gray-50 text-gray-800 font-['Be_Vietnam_Pro']" x-data="{ mobileMenuOpen: false }">
     <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-white focus:px-4 focus:py-2 focus:rounded-full">
         Bỏ qua nội dung điều hướng
     </a>
@@ -137,13 +126,13 @@
                         </a>
                     </nav>
 
-                    <button class="lg:hidden p-2 text-[#003366]" data-menu-toggle>
+                    <button class="lg:hidden p-2 text-[#003366]" @click="mobileMenuOpen = !mobileMenuOpen">
                         <i class="fa-solid fa-bars text-2xl"></i>
                     </button>
                 </div>
 
             <!-- Mobile Navigation -->
-            <div id="mobile-nav" class="lg:hidden hidden border-t border-gray-100 bg-white shadow-inner" data-menu-target>
+            <div id="mobile-nav" class="lg:hidden border-t border-gray-100 bg-white shadow-inner" :class="{ 'hidden': !mobileMenuOpen }">
                 <div class="px-5 py-4 flex flex-col gap-4 text-sm font-bold uppercase tracking-wider text-[#003366]">
                     <a href="/" class="hover:text-[#E27121]">Trang chủ</a>
                     <a href="/gioi-thieu" class="hover:text-[#E27121]">Giới thiệu</a>
