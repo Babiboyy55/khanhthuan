@@ -30,17 +30,9 @@
                     onblur="this.style.borderColor='#cbd5e1'">
             </div>
 
-            <div>
-                <label style="display: block; font-weight: 700; margin-bottom: 10px; color: #475569; font-size: 14px;">Icon (FontAwesome) <span style="color: #e74c3c;">*</span></label>
-                <div style="position: relative;">
-                    <i class="fa {{ old('icon', $documentCategory->icon) }}" id="icon_preview" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                    <input type="text" name="icon" id="icon" required value="{{ old('icon', $documentCategory->icon) }}"
-                        style="width: 100%; padding: 12px 15px 12px 45px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; outline: none;"
-                        oninput="document.getElementById('icon_preview').className = 'fa ' + this.value">
-                </div>
-            </div>
+            <input type="hidden" name="icon" id="icon" value="{{ old('icon', $documentCategory->icon) }}">
 
-            <div>
+            <div style="grid-column: span 2;">
                 <label style="display: block; font-weight: 700; margin-bottom: 10px; color: #475569; font-size: 14px;">Mã màu (Hex) <span style="color: #e74c3c;">*</span></label>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <input type="color" name="color" id="color" required value="{{ old('color', $documentCategory->color) }}"

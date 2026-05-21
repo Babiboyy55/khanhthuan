@@ -30,19 +30,9 @@
                 <p style="font-size: 12px; color: #94a3b8; margin-top: 8px;"><i class="fa fa-info-circle"></i> Chỉ dùng chữ cái thường, số và dấu gạch ngang.</p>
             </div>
 
-            <div>
-                <label style="display: block; font-weight: 700; margin-bottom: 10px; color: #475569; font-size: 14px;">Icon (FontAwesome) <span style="color: #e74c3c;">*</span></label>
-                <div style="position: relative;">
-                    <i class="fa fa-icons" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                    <input type="text" name="icon" id="icon" required placeholder="VD: fa-file-pdf"
-                        style="width: 100%; padding: 12px 15px 12px 45px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; outline: none;"
-                        onfocus="this.style.borderColor='#3498db'"
-                        onblur="this.style.borderColor='#cbd5e1'">
-                </div>
-                <p style="font-size: 12px; color: #94a3b8; margin-top: 8px;">Tìm icon tại: <a href="https://fontawesome.com/icons" target="_blank" style="color: #3498db;">fontawesome.com</a></p>
-            </div>
+            <input type="hidden" name="icon" value="fa-folder">
 
-            <div>
+            <div style="grid-column: span 2;">
                 <label style="display: block; font-weight: 700; margin-bottom: 10px; color: #475569; font-size: 14px;">Mã màu (Hex) <span style="color: #e74c3c;">*</span></label>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <input type="color" name="color" id="color" required value="#003366"
