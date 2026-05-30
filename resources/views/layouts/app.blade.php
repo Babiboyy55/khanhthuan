@@ -82,24 +82,16 @@
                             </button>
 
                             <div class="absolute top-full left-0 mt-0 invisible opacity-0 group-hover:visible group-hover:opacity-100 bg-white shadow-2xl border-t-2 border-[#E27121] rounded-b-lg py-2 min-w-[320px] z-50 transition-all duration-300">
-                                <a href="/thu-vien/giay-phep-kinh-doanh" class="block px-6 py-3 text-[#003366] hover:bg-gray-50 hover:text-[#E27121] border-b border-gray-50 transition-colors font-semibold normal-case">
-                                    Giấy đăng ký kinh doanh
-                                </a>
-                                <a href="/thu-vien/cong-bo-nang-luc" class="block px-6 py-3 text-[#003366] hover:bg-gray-50 hover:text-[#E27121] border-b border-gray-50 transition-colors font-semibold normal-case">
-                                    Bản công bố thông tin năng lực hoạt động
-                                </a>
-                                <a href="/thu-vien/chung-nhan-du-dieu-kien" class="block px-6 py-3 text-[#003366] hover:bg-gray-50 hover:text-[#E27121] border-b border-gray-50 transition-colors font-semibold normal-case">
-                                    Giấy chứng nhận đủ điều kiện hoạt động
-                                </a>
-                                <a href="/thu-vien/hieu-chuan-thiet-bi" class="block px-6 py-3 text-[#003366] hover:bg-gray-50 hover:text-[#E27121] border-b border-gray-50 transition-colors font-semibold normal-case">
-                                    Giấy chứng nhận hiệu chuẩn thiết bị
-                                </a>
-                                <a href="/thu-vien/danh-muc-thiet-bi" class="block px-6 py-3 text-[#003366] hover:bg-gray-50 hover:text-[#E27121] border-b border-gray-50 transition-colors font-semibold normal-case">
-                                    Danh mục máy móc, thiết bị
-                                </a>
-                                <a href="/thu-vien/danh-sach-can-bo" class="block px-6 py-3 text-[#003366] hover:bg-gray-50 hover:text-[#E27121] transition-colors font-semibold normal-case">
-                                    Danh sách cán bộ
-                                </a>
+                                @php
+                                    // Tự động lấy tất cả thư mục gốc thuộc nhóm Công bố năng lực từ Database
+                                    $competencyCategories = \App\Models\DocumentCategory::where('type', 'competency')->whereNull('parent_id')->get();
+                                @endphp
+                                
+                                @foreach($competencyCategories as $cat)
+                                    <a href="/thu-vien/{{ $cat->slug }}" class="block px-6 py-3 text-[#003366] hover:bg-gray-50 hover:text-[#E27121] border-b border-gray-50 transition-colors font-semibold normal-case">
+                                        {{ $cat->name }}
+                                    </a>
+                                @endforeach
                             </div>
                         </div>
 
@@ -136,17 +128,16 @@
                 <div class="px-5 py-4 flex flex-col gap-4 text-sm font-bold uppercase tracking-wider text-[#003366]">
                     <a href="/" class="hover:text-[#E27121]">Trang chủ</a>
                     <a href="/gioi-thieu" class="hover:text-[#E27121]">Giới thiệu</a>
-                    <div class="flex flex-col gap-3">
-                        <span class="text-[#E27121] border-b border-gray-100 pb-1">Công bố năng lực</span>
-                        <div class="flex flex-col gap-3 pl-4 text-xs">
-                            <a href="/thu-vien/giay-phep-kinh-doanh" class="hover:text-[#E27121]">Giấy đăng ký kinh doanh</a>
-                            <a href="/thu-vien/cong-bo-nang-luc" class="hover:text-[#E27121]">Bản công bố thông tin năng lực</a>
-                            <a href="/thu-vien/chung-nhan-du-dieu-kien" class="hover:text-[#E27121]">Giấy chứng nhận đủ điều kiện</a>
-                            <a href="/thu-vien/hieu-chuan-thiet-bi" class="hover:text-[#E27121]">Giấy chứng nhận hiệu chuẩn</a>
-                            <a href="/thu-vien/danh-muc-thiet-bi" class="hover:text-[#E27121]">Danh mục thiết bị</a>
-                            <a href="/thu-vien/danh-sach-can-bo" class="hover:text-[#E27121]">Danh sách cán bộ</a>
+                    <div class="flex flex-col gap-3 pl-4 text-xs">
+                            @php
+                                // Sử dụng lại dữ liệu nếu đã truy vấn ở trên, hoặc truy vấn lại cho Mobile
+                                $mobileCompetencies = \App\Models\DocumentCategory::where('type', 'competency')->whereNull('parent_id')->get();
+                            @endphp
+                            
+                            @foreach($mobileCompetencies as $cat)
+                                <a href="/thu-vien/{{ $cat->slug }}" class="hover:text-[#E27121]">{{ $cat->name }}</a>
+                            @endforeach
                         </div>
-                    </div>
                     <a href="/dich-vu" class="hover:text-[#E27121]">Dịch vụ</a>
                     <a href="/du-an" class="hover:text-[#E27121]">Dự án</a>
                     <a href="/tin-tuc" class="hover:text-[#E27121]">Tin tức</a>
@@ -203,7 +194,7 @@
                             <div class="flex-1">
                                 <p class="text-xs text-gray-500 uppercase font-bold mb-1">Địa chỉ trụ sở</p>
                                 <p class="text-[13px] leading-relaxed text-gray-300">
-                                    Lô B13 đường Phan Hữu Ích, Phường Bảo An, Tỉnh Khánh Hòa, Việt Nam
+                                    Lô B13 đường Phan Hữu Ích, Phường Bảo An, Tỉnh Khánh Hòa thành Lô B13 đường Phan Huy Ích, Phường Bảo An, Tỉnh Khánh Hòa
                                 </p>
                             </div>
                         </div>
@@ -237,8 +228,8 @@
                             <div>
                                 <p class="text-xs text-gray-500 uppercase font-bold mb-1">Tài khoản ngân hàng</p>
                                 <p class="text-[13px] text-gray-300">
-                                    Số TK: <span class="text-white font-bold">111624678668</span> <br>
-                                    VietinBank - CN Kiến An
+                                    Số TK: <span class="text-white font-bold">07985686868</span> <br>
+                                    Ngân hàng MB Bank
                                 </p>
                             </div>
                         </div>

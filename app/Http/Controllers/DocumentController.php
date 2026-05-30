@@ -3,36 +3,54 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
+use App\Models\DocumentCategory;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
 class DocumentController extends Controller
 {
+    // ==========================================
+    // CÁC HÀM DÀNH CHO KHÁCH TRUY CẬP (CLIENT)
+    // ==========================================
+
     public function mainIndex()
     {
-        $categories = \App\Models\DocumentCategory::all();
-
+        // Lấy các thư mục gốc để hiển thị ngoài trang chủ thư viện
+        $categories = DocumentCategory::whereNull('parent_id')->with('children')->get();
         return view('library.main', compact('categories'));
     }
 
-    public function index($categorySlug)
+    public function index(Request $request, string $slug)
     {
-        // Lấy danh sách tài liệu theo category
-        $documents = Document::where('category', $categorySlug)->latest()->get();
+        // 1. Lấy trực tiếp slug trên URL để tìm thư mục (Bỏ qua mảng phiên dịch)
+        $currentCategory = \App\Models\DocumentCategory::where('slug', $slug)->firstOrFail();
 
-        // Lấy thông tin category từ database
-        $category = \App\Models\DocumentCategory::where('slug', $categorySlug)->first();
-        $title = $category ? $category->name : 'Thư viện Tài liệu';
+        // 2. Lấy danh sách tài liệu
+        $subSlug = $request->query('sub');
+        $query = \App\Models\Document::with('category');
 
-        return view('library.index', compact('documents', 'title'));
+        if ($subSlug) {
+            $subCategory = \App\Models\DocumentCategory::where('slug', $subSlug)->firstOrFail();
+            $query->where('document_category_id', $subCategory->id);
+        } else {
+            $categoryIds = $currentCategory->children()->pluck('id')->push($currentCategory->id);
+            $query->whereIn('document_category_id', $categoryIds);
+        }
+
+        $documents = $query->latest()->get();
+
+        // 3. Tự động lấy tên thư mục làm tiêu đề trang
+        $title = $currentCategory->name;
+        $subFolders = $currentCategory->children;
+
+        return view('library.index', compact('documents', 'title', 'subFolders', 'currentCategory'));
     }
 
     public function show($id)
     {
-        $document = Document::findOrFail($id);
+        $document = Document::with('category')->findOrFail($id);
         
-        // Lấy các tài liệu khác cùng chuyên mục để hiển thị ở dưới
-        $otherDocuments = Document::where('category', $document->category)
+        $otherDocuments = Document::where('document_category_id', $document->document_category_id)
             ->where('id', '!=', $id)
             ->latest()
             ->limit(10)
@@ -41,76 +59,98 @@ class DocumentController extends Controller
         return view('library.show', compact('document', 'otherDocuments'));
     }
 
-    public function download($id)
+    public function download(int $id)
     {
         $document = Document::findOrFail($id);
-        $filePath = 'public/' . $document->file_path; // File lưu trong thư mục storage/app/public
+        
+        // Sử dụng storage_path và response()->download để VS Code nhận diện chuẩn 100%
+        $fullPath = storage_path('app/public/' . $document->file_path);
 
-        if (Storage::exists($filePath)) {
-            return Storage::download($filePath, $document->title . '.' . $document->file_extension);
+        if ($document->file_path && file_exists($fullPath)) {
+            return response()->download($fullPath, $document->title . '.' . $document->file_extension);
         }
 
         return back()->with('error', 'File không tồn tại trên hệ thống!');
     }
-    public function create()
-    {
-        $categories = \App\Models\DocumentCategory::all();
-        return view('admin.documents.create', compact('categories'));
-    }
+
+    // ==========================================
+    // CÁC HÀM DÀNH CHO QUẢN TRỊ VIÊN (ADMIN)
+    // ==========================================
 
     public function adminIndex(Request $request)
     {
-        $category = $request->query('category');
-        $group = $request->query('group');
+        $categoryId = $request->query('category');
+        $group = $request->query('group', 'library');
         $sort = $request->query('sort', 'newest');
 
-        $libraryCategories = ['tieu-chuan-thi-cong', 'tieu-chuan-thi-nghiem', 'excel-ung-dung'];
-        $competencyCategories = [
-            'ho-so-nang-luc', 
-            'giay-phep-kinh-doanh', 
-            'cong-bo-nang-luc', 
-            'chung-nhan-du-dieu-kien', 
-            'hieu-chuan-thiet-bi', 
-            'danh-muc-thiet-bi', 
-            'danh-sach-can-bo'
-        ];
+        $query = Document::with('category');
 
-        $documents = Document::query()
-            ->when($group === 'library', function ($query) use ($libraryCategories) {
-                return $query->whereIn('category', $libraryCategories);
-            })
-            ->when($group === 'competency', function ($query) use ($competencyCategories) {
-                return $query->whereIn('category', $competencyCategories);
-            })
-            ->when($category, function ($query, $categoryValue) {
-                return $query->where('category', $categoryValue);
-            })
-            ->when($sort === 'oldest', function ($query) {
-                return $query->orderBy('created_at', 'asc');
-            }, function ($query) {
-                return $query->orderBy('created_at', 'desc');
-            })
-            ->paginate(15)
-            ->withQueryString();
+        if ($categoryId) {
+            $query->where('document_category_id', $categoryId);
+        } else {
+            // TỰ ĐỘNG LẤY TẤT CẢ THƯ MỤC (VÀ THƯ MỤC CON) THUỘC NHÓM LIBRARY HOẶC COMPETENCY
+            $validCategoryIds = DocumentCategory::where('type', $group)
+                ->orWhereHas('parent', function ($q) use ($group) {
+                    $q->where('type', $group);
+                })
+                ->pluck('id');
+                
+            $query->whereIn('document_category_id', $validCategoryIds);
+        }
 
-        return view('admin.documents.index', compact('documents', 'category', 'sort', 'group'));
+        if ($sort === 'oldest') {
+            $query->orderBy('created_at', 'asc');
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        $documents = $query->paginate(15)->withQueryString();
+
+        // Cập nhật bộ lọc Dropdown: Chỉ hiển thị các thư mục thuộc Group hiện tại
+        $categoriesDropdown = DocumentCategory::whereNull('parent_id')
+            ->where('type', $group)
+            ->with('children')
+            ->get();
+
+        return view('admin.documents.index', compact('documents', 'categoryId', 'sort', 'group', 'categoriesDropdown'));
+    }
+
+    public function create(Request $request)
+    {
+        $group = $request->query('group', 'library');
+        
+        // Khi thêm tài liệu mới ở trang nào, chỉ xổ ra danh sách thư mục của trang đó
+        $categories = DocumentCategory::whereNull('parent_id')
+            ->where('type', $group)
+            ->with('children')
+            ->get();
+            
+        return view('admin.documents.create', compact('categories', 'group'));
     }
 
     public function edit(Document $document)
     {
-        $categories = \App\Models\DocumentCategory::all();
+        $group = $document->category->type ?? 'library';
+        $categories = DocumentCategory::whereNull('parent_id')
+            ->where('type', $group)
+            ->with('children')
+            ->get();
         return view('admin.documents.edit', compact('document', 'categories'));
     }
 
-    // Hàm: Nhận file, lưu vào thư mục và ghi vào Database
     public function store(Request $request)
     {
-        // 1. Kiểm tra dữ liệu nhập vào (Validate)
-        $maxSize = $request->category == 'ho-so-nang-luc' ? 102400 : 51200; // 100MB hoặc 50MB
+        $categoryId = $request->input('document_category_id');
+        $category = DocumentCategory::find($categoryId);
+        
+        $maxSize = 51200; 
+        if ($category && ($category->slug === 'ho-so-nang-luc-chung' || $category->slug === 'cong-bo-nang-luc' || in_array($category->slug, ['giay-dang-ky-kinh-doanh', 'giay-chung-nhan-du-dk-hoat-dong-tn', 'giay-chung-nhan-hieu-chuan-thiet-bi', 'danh-muc-may-moc-thiet-bi-ptn', 'danh-sach-can-bo-phong-thi-nghiem']))) {
+            $maxSize = 102400; 
+        }
 
         $request->validate([
             'title' => 'required|string|max:255',
-            'category' => 'required|string',
+            'document_category_id' => 'required|exists:document_categories,id', // Update từ category sang document_category_id
             'file' => "required|mimes:pdf,doc,docx,xls,xlsx,xlsm|max:$maxSize",
         ], [
             'file.mimes' => 'Chỉ hỗ trợ file PDF, Word, Excel.',
@@ -119,24 +159,15 @@ class DocumentController extends Controller
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-
-            // Lấy thông tin file
             $extension = $file->getClientOriginalExtension();
             $sizeInBytes = $file->getSize();
-
-            // Đổi Byte sang MB hoặc KB cho đẹp
-            $size = $sizeInBytes > 1048576
-                ? round($sizeInBytes / 1048576, 2) . ' MB'
-                : round($sizeInBytes / 1024, 2) . ' KB';
-
-            // Lưu file vào thư mục storage/app/public/documents
-            // Laravel sẽ tự động tạo tên file ngẫu nhiên để không bị trùng
+            $size = $sizeInBytes > 1048576 ? round($sizeInBytes / 1048576, 2) . ' MB' : round($sizeInBytes / 1024, 2) . ' KB';
+            
             $path = $file->store('documents', 'public');
 
-            // Lưu thông tin vào Database
             Document::create([
                 'title' => $request->title,
-                'category' => $request->category,
+                'document_category_id' => $request->document_category_id,
                 'file_path' => $path,
                 'file_extension' => $extension,
                 'file_size' => $size,
@@ -150,32 +181,38 @@ class DocumentController extends Controller
 
     public function update(Request $request, Document $document)
     {
-        $maxSize = $request->category == 'ho-so-nang-luc' ? 102400 : 51200;
+        $categoryId = $request->input('document_category_id');
+        $category = DocumentCategory::find($categoryId);
+        
+        $maxSize = 51200; 
+        if ($category && ($category->slug === 'ho-so-nang-luc-chung' || $category->slug === 'cong-bo-nang-luc' || in_array($category->slug, ['giay-dang-ky-kinh-doanh', 'giay-chung-nhan-du-dk-hoat-dong-tn', 'giay-chung-nhan-hieu-chuan-thiet-bi', 'danh-muc-may-moc-thiet-bi-ptn', 'danh-sach-can-bo-phong-thi-nghiem']))) {
+            $maxSize = 102400; 
+        }
 
         $request->validate([
             'title' => 'required|string|max:255',
-            'category' => 'required|string',
+            'document_category_id' => 'required|exists:document_categories,id',
             'file' => "nullable|mimes:pdf,doc,docx,xls,xlsx,xlsm|max:$maxSize",
         ], [
             'file.mimes' => 'Chỉ hỗ trợ file PDF, Word, Excel.',
             'file.max' => 'Dung lượng file vượt quá giới hạn cho phép (' . ($maxSize/1024) . 'MB).',
         ]);
 
-        $data = $request->only(['title', 'category']);
+        $data = [
+            'title' => $request->title,
+            'document_category_id' => $request->document_category_id
+        ];
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
 
-            if ($document->file_path && Storage::exists('public/' . $document->file_path)) {
-                Storage::delete('public/' . $document->file_path);
+            if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
+                Storage::disk('public')->delete($document->file_path);
             }
 
             $extension = $file->getClientOriginalExtension();
             $sizeInBytes = $file->getSize();
-            $size = $sizeInBytes > 1048576
-                ? round($sizeInBytes / 1048576, 2) . ' MB'
-                : round($sizeInBytes / 1024, 2) . ' KB';
-
+            $size = $sizeInBytes > 1048576 ? round($sizeInBytes / 1048576, 2) . ' MB' : round($sizeInBytes / 1024, 2) . ' KB';
             $path = $file->store('documents', 'public');
 
             $data['file_path'] = $path;
@@ -190,8 +227,8 @@ class DocumentController extends Controller
 
     public function destroy(Document $document)
     {
-        if ($document->file_path && Storage::exists('public/' . $document->file_path)) {
-            Storage::delete('public/' . $document->file_path);
+        if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
+            Storage::disk('public')->delete($document->file_path);
         }
 
         $document->delete();
@@ -208,8 +245,8 @@ class DocumentController extends Controller
 
         $documents = Document::whereIn('id', $ids)->get();
         foreach ($documents as $document) {
-            if ($document->file_path && Storage::exists('public/' . $document->file_path)) {
-                Storage::delete('public/' . $document->file_path);
+            if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
+                Storage::disk('public')->delete($document->file_path);
             }
             $document->delete();
         }

@@ -22,6 +22,8 @@
                 <th style="padding: 18px 20px; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">ID</th>
                 <th style="padding: 18px 20px; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Icon & Màu sắc</th>
                 <th style="padding: 18px 20px; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Tên thư mục</th>
+                {{-- THÊM CỘT NHÓM QUẢN LÝ VÀO BẢNG --}}
+                <th style="padding: 18px 20px; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Nhóm quản lý</th>
                 <th style="padding: 18px 20px; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;">Đường dẫn (Slug)</th>
                 <th style="padding: 18px 20px; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; text-align: right;">Thao tác</th>
             </tr>
@@ -36,6 +38,24 @@
                     </div>
                 </td>
                 <td style="padding: 18px 20px; font-weight: 700; color: #1e293b; font-size: 15px;">{{ $category->name }}</td>
+                
+                {{-- HIỂN THỊ BADGE CHO NHÓM QUẢN LÝ --}}
+                <td style="padding: 18px 20px;">
+                    @if($category->type == 'library')
+                        <span style="background: #e0e7ff; color: #4338ca; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;">
+                            <i class="fa-solid fa-book"></i> Thư viện
+                        </span>
+                    @elseif($category->type == 'competency')
+                        <span style="background: #ffedd5; color: #c2410c; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;">
+                            <i class="fa-solid fa-id-card"></i> Công bố NL
+                        </span>
+                    @else
+                        <span style="background: #f1f5f9; color: #dc2626; padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;">
+                            Chưa phân loại <i class="fa-solid fa-circle-exclamation"></i>
+                        </span>
+                    @endif
+                </td>
+
                 <td style="padding: 18px 20px; color: #64748b; font-family: 'Consolas', monospace; font-size: 13px;">
                     <span style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px;">{{ $category->slug }}</span>
                 </td>

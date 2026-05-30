@@ -124,12 +124,15 @@ $services = [
     </div>
 </section>
 
-
-
 @php
-    // Lấy file mới nhất trong chuyên mục "Hồ sơ năng lực" cho nút bấm
-    $latestProfile = \App\Models\Document::where('category', 'ho-so-nang-luc')->latest()->first();
-    $profileUrl = $latestProfile ? route('documents.show', $latestProfile->id) : url('/thu-vien/ho-so-nang-luc');
+    // 1. Tìm lấy danh mục "Hồ sơ năng lực chung" dựa vào slug động trong DB
+    $category = \App\Models\DocumentCategory::where('slug', 'ho-so-nang-luc-chung')->first();
+    
+    // 2. Lấy file mới nhất thuộc ID danh mục đó (thay vì tìm bằng chữ ở cột cũ)
+    $latestProfile = $category ? \App\Models\Document::where('document_category_id', $category->id)->latest()->first() : null;
+    
+    // 3. Gán đường dẫn cho nút bấm
+    $profileUrl = $latestProfile ? route('document.download', $latestProfile->id) : url('/cong-bo-nang-luc/ho-so-nang-luc-chung');
 @endphp
 
 <section id="phan-gioi-thieu" class="py-20 bg-white font-['Be_Vietnam_Pro']">
@@ -258,7 +261,7 @@ $services = [
                         <div class="pt-1">
                             <h4 class="font-black text-[#1e293b] text-sm uppercase mb-1">Địa chỉ</h4>
                             <p class="text-gray-500 text-sm leading-relaxed max-w-sm">
-                                Lô B13 đường Phan Hữu Ích, Phường Bảo An, Tỉnh Khánh Hòa
+                                Lô B13 đường Phan Hữu Ích, Phường Bảo An, Tỉnh Khánh Hòa thành Lô B13 đường Phan Huy Ích, Phường Bảo An, Tỉnh Khánh Hòa
                             </p>
                         </div>
                     </div>

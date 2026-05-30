@@ -79,7 +79,7 @@ $title = 'Liên hệ - Công ty Khánh Thuận';
                         </div>
                         <div>
                             <p class="text-sm text-gray-300 font-bold uppercase mb-1">Trụ sở chính</p>
-                            <p class="font-medium leading-relaxed">Lô B13 đường Phan Hữu Ích, Phường Bảo An, Tỉnh Khánh Hòa, Việt Nam</p>
+                            <p class="font-medium leading-relaxed">Lô B13 đường Phan Hữu Ích, Phường Bảo An, Tỉnh Khánh Hòa thành Lô B13 đường Phan Huy Ích, Phường Bảo An, Tỉnh Khánh Hòa</p>
                         </div>
                     </li>
 
@@ -110,8 +110,8 @@ $title = 'Liên hệ - Công ty Khánh Thuận';
                         </div>
                         <div>
                             <p class="text-sm text-gray-300 font-bold uppercase mb-1">Thông tin thanh toán</p>
-                            <p class="font-medium">Số TK: <span class="font-bold text-white">111624678668</span></p>
-                            <p class="text-sm">Ngân hàng VietinBank - CN Kiến An</p>
+                            <p class="font-medium">Số TK: <span class="font-bold text-white">07985686868</span></p>
+                            <p class="text-sm">Ngân hàng MB Bank</p>
                             <p class="text-[10px] text-gray-400 mt-1 uppercase">CTK: CONG TY CO PHAN PHAT TRIEN HA TANG KHANH THUAN</p>
                         </div>
                     </li>

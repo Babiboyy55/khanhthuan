@@ -30,6 +30,18 @@
                     onblur="this.style.borderColor='#cbd5e1'">
             </div>
 
+            {{-- ĐOẠN CODE THÊM MỚI: CHỌN NHÓM QUẢN LÝ (Có lưu dữ liệu cũ) --}}
+            <div style="grid-column: span 2;">
+                <label style="display: block; font-weight: 700; margin-bottom: 10px; color: #475569; font-size: 14px;">Thuộc nhóm <span style="color: #e74c3c;">*</span></label>
+                <select name="type" required style="width: 100%; padding: 12px 15px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; outline: none; background: white; transition: 0.3s;"
+                    onfocus="this.style.borderColor='#3498db'"
+                    onblur="this.style.borderColor='#cbd5e1'">
+                    <option value="">-- Chọn nhóm quản lý --</option>
+                    <option value="library" {{ old('type', $documentCategory->type) == 'library' ? 'selected' : '' }}>Thư viện tài liệu</option>
+                    <option value="competency" {{ old('type', $documentCategory->type) == 'competency' ? 'selected' : '' }}>Công bố năng lực</option>
+                </select>
+            </div>
+
             <input type="hidden" name="icon" id="icon" value="{{ old('icon', $documentCategory->icon) }}">
 
             <div style="grid-column: span 2;">

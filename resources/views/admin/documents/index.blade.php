@@ -21,34 +21,43 @@
         </a>
     </div>
 
+    {{-- BỘ LỌC ĐÃ ĐƯỢC CẬP NHẬT ĐỂ TỰ ĐỘNG LẤY DANH SÁCH THƯ MỤC TỪ DATABASE --}}
     <form method="GET" action="{{ route('admin.documents.index') }}" style="display: flex; gap: 12px; align-items: center; margin-bottom: 20px; font-family: 'Segoe UI', sans-serif; flex-wrap: wrap;">
         <input type="hidden" name="group" value="{{ $group ?? '' }}">
+        
         <label for="category" style="font-weight: 600; color: #475569; font-size: 13px;">Chuyên mục</label>
         <select name="category" id="category" style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; font-size: 13px;">
-            <option value="">Tất cả</option>
-            @if(($group ?? '') == 'competency')
-                <option value="ho-so-nang-luc" {{ ($category ?? '') == 'ho-so-nang-luc' ? 'selected' : '' }}>Hồ sơ năng lực chung</option>
-                <option value="giay-phep-kinh-doanh" {{ ($category ?? '') == 'giay-phep-kinh-doanh' ? 'selected' : '' }}>Giấy đăng ký kinh doanh</option>
-                <option value="cong-bo-nang-luc" {{ ($category ?? '') == 'cong-bo-nang-luc' ? 'selected' : '' }}>Bản công bố thông tin năng lực hoạt động TN</option>
-                <option value="chung-nhan-du-dieu-kien" {{ ($category ?? '') == 'chung-nhan-du-dieu-kien' ? 'selected' : '' }}>Giấy chứng nhận đủ ĐK hoạt động TN</option>
-                <option value="hieu-chuan-thiet-bi" {{ ($category ?? '') == 'hieu-chuan-thiet-bi' ? 'selected' : '' }}>Giấy chứng nhận hiệu chuẩn thiết bị</option>
-                <option value="danh-muc-thiet-bi" {{ ($category ?? '') == 'danh-muc-thiet-bi' ? 'selected' : '' }}>Danh mục máy móc, thiết bị PTN</option>
-                <option value="danh-sach-can-bo" {{ ($category ?? '') == 'danh-sach-can-bo' ? 'selected' : '' }}>Danh sách cán bộ phòng thí nghiệm</option>
-            @else
-                <option value="tieu-chuan-thi-cong" {{ ($category ?? '') == 'tieu-chuan-thi-cong' ? 'selected' : '' }}>Tiêu chuẩn thi công</option>
-                <option value="tieu-chuan-thi-nghiem" {{ ($category ?? '') == 'tieu-chuan-thi-nghiem' ? 'selected' : '' }}>Tiêu chuẩn thí nghiệm</option>
-                <option value="excel-ung-dung" {{ ($category ?? '') == 'excel-ung-dung' ? 'selected' : '' }}>Excel - Ứng dụng</option>
+            <option value="">Tất cả chuyên mục</option>
+            @if(isset($categoriesDropdown))
+                @foreach($categoriesDropdown as $parent)
+                    <optgroup label="{{ $parent->name }}">
+                        @if($parent->children->count() > 0)
+                            @foreach($parent->children as $child)
+                                <option value="{{ $child->id }}" {{ request('category') == $child->id ? 'selected' : '' }}>
+                                    {{ $child->name }}
+                                </option>
+                            @endforeach
+                        @else
+                            <option value="{{ $parent->id }}" {{ request('category') == $parent->id ? 'selected' : '' }}>
+                                {{ $parent->name }}
+                            </option>
+                        @endif
+                    </optgroup>
+                @endforeach
             @endif
         </select>
+
         <label for="sort" style="font-weight: 600; color: #475569; font-size: 13px;">Sắp xếp</label>
         <select name="sort" id="sort" style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: white; font-size: 13px;">
             <option value="newest" {{ ($sort ?? 'newest') == 'newest' ? 'selected' : '' }}>Mới nhất</option>
             <option value="oldest" {{ ($sort ?? 'newest') == 'oldest' ? 'selected' : '' }}>Cũ nhất</option>
         </select>
+        
         <button type="submit" style="background: #4f46e5; color: white; padding: 8px 14px; border: none; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer;">
             Lọc
         </button>
-        @if(!empty($category) || ($sort ?? 'newest') !== 'newest')
+        
+        @if(request()->has('category') || request('sort') === 'oldest')
         <a href="{{ route('admin.documents.index', ['group' => $group ?? '']) }}" style="color: #64748b; text-decoration: none; font-size: 13px;">Xóa lọc</a>
         @endif
     </form>
@@ -91,7 +100,8 @@
                     </td>
                     <td style="padding: 15px;">
                         <span style="color: #475569; background: #f1f5f9; padding: 3px 10px; border-radius: 6px; font-size: 12px;">
-                            {{ $document->category }}
+                            {{-- ĐÃ SỬA: Hiển thị đúng tên thư mục --}}
+                            {{ $document->category->name ?? 'Không xác định' }}
                         </span>
                     </td>
                     <td style="padding: 15px; color: #475569; font-size: 13px;">
@@ -114,23 +124,19 @@
                             <a href="{{ route('admin.documents.edit', $document->id) }}" style="color: #3b82f6;" title="Sửa">
                                 <i class="fa-solid fa-pen"></i>
                             </a>
-                            <button type="button" onclick="deleteDocument({{ $document->id }})"
-                                style="background:none; border:none; color: #ef4444; cursor: pointer; padding: 0;" title="Xóa">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
                         </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" style="padding: 40px; text-align: center; color: #94a3b8;">Chưa có tài liệu nào được tạo.</td>
+                    <td colspan="7" style="padding: 40px; text-align: center; color: #94a3b8;">Chưa có tài liệu nào được tạo trong mục này.</td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </form>
 
-    {{-- Form xóa từng mục (đặt ngoài bulk form) --}}
+    {{-- Form xóa từng mục --}}
     <form id="delete-single-form" method="POST" style="display:none;">
         @csrf
         @method('DELETE')

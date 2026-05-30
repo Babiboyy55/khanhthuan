@@ -12,9 +12,15 @@ class Document extends Model
     // Khai báo các cột được phép thêm dữ liệu
     protected $fillable = [
         'title',
-        'category',
+        'document_category_id', // Đã đổi từ 'category' sang 'document_category_id'
         'file_path',
         'file_extension',
         'file_size'
     ];
+
+    // Khai báo mối quan hệ với bảng DocumentCategory
+    public function category()
+    {
+        return $this->belongsTo(DocumentCategory::class, 'document_category_id');
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class DocumentCategoryController extends Controller
 {
@@ -20,9 +21,14 @@ class DocumentCategoryController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'slug' => \Illuminate\Support\Str::slug($request->input('slug') ?? $request->input('name'))
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:document_categories',
+            'type' => 'required|string|in:library,competency', // Thêm dòng này để kiểm tra loại thư mục
             'icon' => 'required|string|max:255',
             'color' => 'required|string|max:255',
         ]);
@@ -39,9 +45,14 @@ class DocumentCategoryController extends Controller
 
     public function update(Request $request, \App\Models\DocumentCategory $documentCategory)
     {
+        $request->merge([
+            'slug' => \Illuminate\Support\Str::slug($request->input('slug') ?? $request->input('name'))
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:document_categories,slug,' . $documentCategory->id,
+            'type' => 'required|string|in:library,competency', // Thêm dòng này
             'icon' => 'required|string|max:255',
             'color' => 'required|string|max:255',
         ]);

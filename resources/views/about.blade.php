@@ -4,9 +4,15 @@
 @php
     $title = 'Về chúng tôi - Công ty Khánh Thuận';
     
-    // Lấy file mới nhất trong chuyên mục "Hồ sơ năng lực"
-    $latestProfile = \App\Models\Document::where('category', 'ho-so-nang-luc')->latest()->first();
-    $profileUrl = $latestProfile ? route('documents.show', $latestProfile->id) : url('/thu-vien/ho-so-nang-luc');
+    // 1. Tìm lấy danh mục "Hồ sơ năng lực chung" dựa vào slug động trong DB
+    // Lưu ý: Đảm bảo slug này khớp với slug bạn đã tạo trong phần Quản lý thư mục
+    $category = \App\Models\DocumentCategory::where('slug', 'ho-so-nang-luc-chung')->first();
+    
+    // 2. Lấy file mới nhất thuộc ID danh mục đó (thay vì tìm bằng chữ ở cột cũ)
+    $latestProfile = $category ? \App\Models\Document::where('document_category_id', $category->id)->latest()->first() : null;
+    
+    // 3. Gán đường dẫn cho nút bấm tải về
+    $profileUrl = $latestProfile ? route('document.download', $latestProfile->id) : url('/thu-vien/ho-so-nang-luc-chung');
 @endphp
 
 <section class="relative w-full h-[40vh] min-h-[300px] bg-[#003366] overflow-hidden">
